@@ -29,6 +29,33 @@ class SynthVoice : public juce::SynthesiserVoice
             envelope1.setRelease(double(*release));
         }
 
+        void getWaveformType(float* selection)
+        {
+            wave = *selection;
+        }
+
+        double setOscType()
+        {
+            switch (wave)
+            {
+                case 0:
+                    return oscA.sinewave(frequency);
+                    break;
+                case 1:
+                    return oscA.saw(frequency);
+                    break;
+                case 2:
+                    return oscA.square(frequency);
+                    break;
+                case 3:
+                    return oscA.triangle(frequency);
+                    break;
+                default:
+                    return oscA.sinewave(frequency);
+                    break;
+            }
+        }
+
         void startNote(int midiNoteNumber, float velocity, juce::SynthesiserSound* sound, int currentPitchWheelPosition)
         {
             envelope1.trigger = 1;
@@ -63,8 +90,8 @@ class SynthVoice : public juce::SynthesiserVoice
 
             for (int sample = 0; sample < numOfSamples; ++sample)
             {
-                double wave = oscA.saw(frequency);
-                double sound = envelope1.adsr(wave, envelope1.trigger) * level;
+                //double wave = oscA.saw(frequency);
+                double sound = envelope1.adsr(setOscType(), envelope1.trigger) * level;
                 double soundFiltered = filter1.lores(sound, 500, 0.1);
                 for (int channel = 0; channel < outputBuffer.getNumChannels(); ++channel)
                 {
@@ -78,6 +105,7 @@ class SynthVoice : public juce::SynthesiserVoice
     private:
         double level;
         double frequency;
+        int wave;
         maxiOsc oscA;
         maxiEnv envelope1;
         maxiFilter filter1;
