@@ -25,11 +25,14 @@ PrismAudioProcessor::PrismAudioProcessor()
     sustainValue(0.5f),
     releaseTime(800.0f),
     tree(*this, nullptr, "PARAMETERS",
-        { std::make_unique<juce::AudioParameterFloat>("attack", "Attack", juce::NormalisableRange<float>(0.0f, 5000.0f), 0.1f),
+        { std::make_unique<juce::AudioParameterFloat>("attack", "Attack", juce::NormalisableRange<float>(0.0f, 5000.0f), 20.0f),
           std::make_unique<juce::AudioParameterFloat>("decay", "Decay", juce::NormalisableRange<float>(0.0f, 5000.0f), 500.0f),
           std::make_unique<juce::AudioParameterFloat>("sustain", "Sustain", juce::NormalisableRange<float>(0.0f, 1.0f), 0.5f),
           std::make_unique<juce::AudioParameterFloat>("release", "Release", juce::NormalisableRange<float>(0.0f, 5000.0f), 800.0f),
-          std::make_unique<juce::AudioParameterFloat>("waveform", "Waveform", juce::NormalisableRange<float>(0,3), 0)})
+          std::make_unique<juce::AudioParameterFloat>("waveform", "Waveform", juce::NormalisableRange<float>(0, 3), 0),
+          std::make_unique<juce::AudioParameterFloat>("cutoff", "Cutoff", juce::NormalisableRange<float>(30.0f, 8000.0f), 1000.0f),
+          std::make_unique<juce::AudioParameterFloat>("resonance", "Resonance", juce::NormalisableRange<float>(1, 5), 1),
+          std::make_unique<juce::AudioParameterFloat>("filterType", "FilterType", juce::NormalisableRange<float>(0, 3), 0)})
 #endif
 {
     Prism.clearVoices();
@@ -186,8 +189,12 @@ void PrismAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
             float* sustainPtr = (float*)tree.getRawParameterValue("sustain");
             float* releasePtr = (float*)tree.getRawParameterValue("release");
             float* waveformPtr = (float*)tree.getRawParameterValue("waveform");
-            PrismVoice->getParam(attackPtr, decayPtr, sustainPtr, releasePtr);
+            float* filterPtr = (float*)tree.getRawParameterValue("filterType");
+            float* cutoffPtr = (float*)tree.getRawParameterValue("cutoff");
+            float* resonancePtr = (float*)tree.getRawParameterValue("resonance");
+            PrismVoice->getADSRParam(attackPtr, decayPtr, sustainPtr, releasePtr);
             PrismVoice->getWaveformType(waveformPtr);
+            PrismVoice->getFilterParam(filterPtr, cutoffPtr, resonancePtr);
         }
     }
 

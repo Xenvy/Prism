@@ -11,14 +11,15 @@
 
 //==============================================================================
 PrismAudioProcessorEditor::PrismAudioProcessorEditor (PrismAudioProcessor& p)
-    : AudioProcessorEditor (&p), audioProcessor (p), oscA(p), adsrA(p)
+    : AudioProcessorEditor (&p), audioProcessor (p), oscA(p), adsrA(p), filterA(p)
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (400, 200);
+    setSize (600, 200);
 
     addAndMakeVisible(&oscA);
     addAndMakeVisible(&adsrA);
+    addAndMakeVisible(&filterA);
 }
 
 PrismAudioProcessorEditor::~PrismAudioProcessorEditor()
@@ -47,6 +48,6 @@ void PrismAudioProcessorEditor::resized()
     const int componentWidth = 200;
     oscA.setBounds(area.removeFromLeft(componentWidth).removeFromTop(componentHeight));
     adsrA.setBounds(area.removeFromLeft(componentWidth).removeFromTop(componentHeight));
-
+    filterA.setBounds(area.removeFromLeft(componentWidth).removeFromTop(componentHeight));
 }
 

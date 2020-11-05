@@ -24,30 +24,26 @@ audioProcessor(p)
     attackSlider.setRange(0.0f, 5000.0f);
     attackSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 20.0, 10.0);
     attackSlider.setValue(0.1f);
-    attackSlider.addListener(this);
 
     decaySlider.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
     decaySlider.setRange(0.0f, 5000.0f);
     decaySlider.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 20.0, 10.0);
     decaySlider.setValue(500.0f);
-    decaySlider.addListener(this);
 
     sustainSlider.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
     sustainSlider.setRange(0.0f, 1.0f);
     sustainSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 20.0, 10.0);
     sustainSlider.setValue(0.5f);
-    sustainSlider.addListener(this);
 
     releaseSlider.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
     releaseSlider.setRange(0.0f, 5000.0f);
     releaseSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 20.0, 10.0);
     releaseSlider.setValue(800.0f);
-    releaseSlider.addListener(this);
 
-    addAndMakeVisible(attackSlider);
-    addAndMakeVisible(decaySlider);
-    addAndMakeVisible(sustainSlider);
-    addAndMakeVisible(releaseSlider);
+    addAndMakeVisible(&attackSlider);
+    addAndMakeVisible(&decaySlider);
+    addAndMakeVisible(&sustainSlider);
+    addAndMakeVisible(&releaseSlider);
 
     treeAttack = std::make_unique <juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.tree, "attack", attackSlider);
     treeDecay = std::make_unique <juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.tree, "decay", decaySlider);
@@ -83,24 +79,4 @@ void ADSR_Envelope::resized()
     sustainSlider.setBounds(90, 10, 40, 100);
     releaseSlider.setBounds(130, 10, 40, 100);
 
-}
-
-void ADSR_Envelope::sliderValueChanged(juce::Slider* slider)
-{
-    //if (slider == &attackSlider)
-    //{
-    //    audioProcessor.attackTime = attackSlider.getValue();
-    //}
-    //if (slider == &decaySlider)
-    //{
-    //    audioProcessor.decayTime = decaySlider.getValue();
-    //}
-    //if (slider == &sustainSlider)
-    //{
-    //    audioProcessor.sustainValue = sustainSlider.getValue();
-    //}
-    //if (slider == &releaseSlider)
-    //{
-    //    audioProcessor.releaseTime = releaseSlider.getValue();
-    //}
 }

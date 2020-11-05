@@ -16,7 +16,7 @@
 //==============================================================================
 /*
 */
-class ADSR_Envelope  : public juce::Component, public juce::Slider::Listener
+class ADSR_Envelope  : public juce::Component
 {
 public:
     ADSR_Envelope(PrismAudioProcessor&);
@@ -25,7 +25,6 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
 
-    void sliderValueChanged(juce::Slider* slider) override;
 
 private:
 

@@ -12,6 +12,7 @@
 #include "PluginProcessor.h"
 #include "Oscillator.h"
 #include "ADSR_Envelope.h"
+#include "Filter.h"
 
 //==============================================================================
 /**
@@ -33,6 +34,7 @@ private:
 
     Oscillator oscA;
     ADSR_Envelope adsrA;
+    Filter filterA;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PrismAudioProcessorEditor)
 };

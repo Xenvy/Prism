@@ -21,12 +21,17 @@ class SynthVoice : public juce::SynthesiserVoice
             return dynamic_cast<SynthSound*>(sound) != nullptr;
         }
 
-        void getParam(float* attack, float* decay, float* sustain, float* release)
+        void getADSRParam(float* attack, float* decay, float* sustain, float* release)
         {
             envelope1.setAttack(double(*attack));
             envelope1.setDecay(double(*decay));
             envelope1.setSustain(double(*sustain));
             envelope1.setRelease(double(*release));
+        }
+
+        double setADSR()
+        {
+            return envelope1.adsr(setOscType(), envelope1.trigger)*level;
         }
 
         void getWaveformType(float* selection)
@@ -56,12 +61,44 @@ class SynthVoice : public juce::SynthesiserVoice
             }
         }
 
+        void getFilterParam(float* type, float* cutoff, float* resonance)
+        {
+            filterType = *type;
+            filterCutoff = *cutoff;
+            filterResonance = *resonance;
+        }
+
+        double setFilterType()
+        {
+            switch (filterType)
+            {
+            case 0:
+                return setADSR();
+                break;
+
+            case 1:
+                return filterA.lores(setADSR(), filterCutoff, filterResonance);
+                break;
+
+            case 2:
+                return filterA.hires(setADSR(), filterCutoff, filterResonance);
+                break;
+
+            case 3:
+                return filterA.bandpass(setADSR(), filterCutoff, filterResonance);
+                break;
+
+            default:
+                return setADSR();
+                break;
+            }
+        }
+
         void startNote(int midiNoteNumber, float velocity, juce::SynthesiserSound* sound, int currentPitchWheelPosition)
         {
             envelope1.trigger = 1;
             level = velocity;
             frequency = juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber);
-            std::cout << midiNoteNumber << std::endl;
         }
 
         void stopNote(float velocity, bool allowTailOff)
@@ -90,12 +127,10 @@ class SynthVoice : public juce::SynthesiserVoice
 
             for (int sample = 0; sample < numOfSamples; ++sample)
             {
-                //double wave = oscA.saw(frequency);
-                double sound = envelope1.adsr(setOscType(), envelope1.trigger) * level;
-                double soundFiltered = filter1.lores(sound, 500, 0.1);
+
                 for (int channel = 0; channel < outputBuffer.getNumChannels(); ++channel)
                 {
-                    outputBuffer.addSample(channel, startSample, soundFiltered);
+                    outputBuffer.addSample(channel, startSample, setFilterType());
                 }
 
                 ++startSample;
@@ -106,7 +141,12 @@ class SynthVoice : public juce::SynthesiserVoice
         double level;
         double frequency;
         int wave;
+
+        int filterType;
+        float filterCutoff;
+        float filterResonance;
+
         maxiOsc oscA;
         maxiEnv envelope1;
-        maxiFilter filter1;
+        maxiFilter filterA;
 };
