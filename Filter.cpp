@@ -29,12 +29,12 @@ audioProcessor(p)
     filterTypeValue = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.tree, "filterType", filterTypeMenu);
 
     cutoffSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
-    cutoffSlider.setRange(30.0, 8000.0);
-    cutoffSlider.setValue(1000.0);
+    cutoffSlider.setRange(20.0, 20000.0);
+    cutoffSlider.setValue(500.0);
     cutoffSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
     addAndMakeVisible(&cutoffSlider);
     cutoffValue = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.tree, "cutoff", cutoffSlider);
-    cutoffSlider.setSkewFactorFromMidPoint(1000.0);
+    cutoffSlider.setSkewFactorFromMidPoint(640.0);
 
     resonanceSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
     resonanceSlider.setRange(1, 5);
@@ -57,7 +57,16 @@ void Filter::paint (juce::Graphics& g)
        drawing code..
     */
 
+    juce::Rectangle<int> titleArea(0, 10, getWidth(), 20);
+
     g.fillAll(juce::Colours::black);
+    g.setColour(juce::Colours::white);
+    g.drawText("Filter", titleArea, juce::Justification::centredTop);
+
+    juce::Rectangle <float> area(25, 25, 150, 150);
+
+    g.setColour(juce::Colours::yellow);
+    g.drawRoundedRectangle(area, 20.0f, 2.0f);
 }
 
 void Filter::resized()

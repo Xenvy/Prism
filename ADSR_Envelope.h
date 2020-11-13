@@ -20,7 +20,8 @@ class ADSR_Envelope  : public juce::Component
 {
 public:
     ADSR_Envelope(PrismAudioProcessor&);
-    ~ADSR_Envelope() override;
+    //~ADSR_Envelope() override;
+    ~ADSR_Envelope();
 
     void paint (juce::Graphics&) override;
     void resized() override;

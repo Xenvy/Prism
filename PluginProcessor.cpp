@@ -20,19 +20,20 @@ PrismAudioProcessor::PrismAudioProcessor()
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
                        ),
-    attackTime(0.1f),
-    decayTime(500.0f),
-    sustainValue(0.5f),
-    releaseTime(800.0f),
     tree(*this, nullptr, "PARAMETERS",
         { std::make_unique<juce::AudioParameterFloat>("attack", "Attack", juce::NormalisableRange<float>(0.0f, 5000.0f), 20.0f),
           std::make_unique<juce::AudioParameterFloat>("decay", "Decay", juce::NormalisableRange<float>(0.0f, 5000.0f), 500.0f),
           std::make_unique<juce::AudioParameterFloat>("sustain", "Sustain", juce::NormalisableRange<float>(0.0f, 1.0f), 0.5f),
           std::make_unique<juce::AudioParameterFloat>("release", "Release", juce::NormalisableRange<float>(0.0f, 5000.0f), 800.0f),
-          std::make_unique<juce::AudioParameterFloat>("waveform", "Waveform", juce::NormalisableRange<float>(0, 3), 0),
-          std::make_unique<juce::AudioParameterFloat>("cutoff", "Cutoff", juce::NormalisableRange<float>(30.0f, 8000.0f), 1000.0f),
+          std::make_unique<juce::AudioParameterFloat>("waveformA", "WaveformA", juce::NormalisableRange<float>(0, 3), 0),
+          std::make_unique<juce::AudioParameterFloat>("waveformB", "WaveformB", juce::NormalisableRange<float>(0, 3), 0),
+          std::make_unique<juce::AudioParameterFloat>("cutoff", "Cutoff", juce::NormalisableRange<float>(20.0f, 20000.0f), 500.0f),
           std::make_unique<juce::AudioParameterFloat>("resonance", "Resonance", juce::NormalisableRange<float>(1, 5), 1),
-          std::make_unique<juce::AudioParameterFloat>("filterType", "FilterType", juce::NormalisableRange<float>(0, 3), 0)})
+          std::make_unique<juce::AudioParameterFloat>("filterType", "FilterType", juce::NormalisableRange<float>(0, 3), 0),
+          std::make_unique<juce::AudioParameterFloat>("blend", "Blend", juce::NormalisableRange<float>(0.0f, 1.0f), 0.5f),
+          std::make_unique<juce::AudioParameterFloat>("masterVolume", "MasterVolume", juce::NormalisableRange<float>(0.0f, 1.0f), 0.6f),
+          std::make_unique<juce::AudioParameterFloat>("pbup", "PBup", juce::NormalisableRange<float>(1.0f, 12.0f), 1.0f),
+          std::make_unique<juce::AudioParameterFloat>("pbdown", "PBdown", juce::NormalisableRange<float>(1.0f, 12.0f), 1.0f) })
 #endif
 {
     Prism.clearVoices();
@@ -120,6 +121,16 @@ void PrismAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     juce::ignoreUnused(samplesPerBlock);
     lastSampleRate = sampleRate;
     Prism.setCurrentPlaybackSampleRate(lastSampleRate);
+
+    juce::dsp::ProcessSpec procSpec;
+    procSpec.sampleRate = lastSampleRate;
+    procSpec.maximumBlockSize = samplesPerBlock;
+    procSpec.numChannels = getTotalNumOutputChannels();
+
+    stateVarFilter.reset();
+    stateVarFilter.prepare(procSpec);
+    updateFilter();
+
 }
 
 void PrismAudioProcessor::releaseResources()
@@ -152,6 +163,39 @@ bool PrismAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) co
 }
 #endif
 
+void PrismAudioProcessor::updateFilter()
+{
+    int filterSelection = *tree.getRawParameterValue("filterType");
+    int cutoffValue = *tree.getRawParameterValue("cutoff");
+    int resonanceValue = *tree.getRawParameterValue("resonance");
+
+    switch (filterSelection)
+    {
+    case 0:
+        bypassFilter = 1;
+        break;
+    case 1:
+        bypassFilter = 0;
+        stateVarFilter.state->type = juce::dsp::StateVariableFilter::Parameters<float>::Type::lowPass;
+        stateVarFilter.state->setCutOffFrequency(lastSampleRate, cutoffValue, resonanceValue);
+        break;
+    case 2:
+        bypassFilter = 0;
+        stateVarFilter.state->type = juce::dsp::StateVariableFilter::Parameters<float>::Type::highPass;
+        stateVarFilter.state->setCutOffFrequency(lastSampleRate, cutoffValue, resonanceValue);
+        break;
+    case 3:
+        bypassFilter = 0;
+        stateVarFilter.state->type = juce::dsp::StateVariableFilter::Parameters<float>::Type::bandPass;
+        stateVarFilter.state->setCutOffFrequency(lastSampleRate, cutoffValue, resonanceValue);
+        break;
+    default:
+        bypassFilter = 1;
+        break;
+    }
+}
+
+
 void PrismAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     juce::ScopedNoDenormals noDenormals;
@@ -173,12 +217,12 @@ void PrismAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
     // the samples and the outer loop is handling the channels.
     // Alternatively, you can process the samples with the channels
     // interleaved by keeping the same state.
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
-    {
-        auto* channelData = buffer.getWritePointer (channel);
+    //for (int channel = 0; channel < totalNumInputChannels; ++channel)
+    //{
+    //    auto* channelData = buffer.getWritePointer (channel);
 
         // ..do something to the data...
-    }
+    //}
 
     for (int i = 0; i < Prism.getNumVoices(); i++)
     {
@@ -188,18 +232,31 @@ void PrismAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
             float* decayPtr = (float*)tree.getRawParameterValue("decay");
             float* sustainPtr = (float*)tree.getRawParameterValue("sustain");
             float* releasePtr = (float*)tree.getRawParameterValue("release");
-            float* waveformPtr = (float*)tree.getRawParameterValue("waveform");
+            float* waveformAPtr = (float*)tree.getRawParameterValue("waveformA");
+            float* waveformBPtr = (float*)tree.getRawParameterValue("waveformB");
             float* filterPtr = (float*)tree.getRawParameterValue("filterType");
             float* cutoffPtr = (float*)tree.getRawParameterValue("cutoff");
             float* resonancePtr = (float*)tree.getRawParameterValue("resonance");
+            float* blendPtr = (float*)tree.getRawParameterValue("blend");
+            float* masterVolumePtr = (float*)tree.getRawParameterValue("masterVolume");
+            float* pbupPtr = (float*)tree.getRawParameterValue("pbup");
+            float* pbdownPtr = (float*)tree.getRawParameterValue("pbdown");
             PrismVoice->getADSRParam(attackPtr, decayPtr, sustainPtr, releasePtr);
-            PrismVoice->getWaveformType(waveformPtr);
+            PrismVoice->getWaveformAType(waveformAPtr);
+            PrismVoice->getWaveformBType(waveformBPtr);
             PrismVoice->getFilterParam(filterPtr, cutoffPtr, resonancePtr);
+            PrismVoice->getParams(masterVolumePtr, blendPtr, pbupPtr, pbdownPtr);
         }
     }
 
     buffer.clear();
     Prism.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
+    updateFilter();
+    if (bypassFilter == 0)
+    {
+        juce::dsp::AudioBlock<float> aBlock(buffer);
+        stateVarFilter.process(juce::dsp::ProcessContextReplacing<float>(aBlock));
+    }
 }
 
 //==============================================================================

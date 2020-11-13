@@ -20,7 +20,8 @@ class PrismAudioProcessor  : public juce::AudioProcessor
 public:
     //==============================================================================
     PrismAudioProcessor();
-    ~PrismAudioProcessor() override;
+    //~PrismAudioProcessor() override;
+    ~PrismAudioProcessor();
 
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
@@ -55,10 +56,8 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
-    float attackTime;
-    float decayTime;
-    float sustainValue;
-    float releaseTime;
+    void updateFilter();
+
     juce::AudioProcessorValueTreeState tree;
 
 private:
@@ -67,6 +66,9 @@ private:
     SynthVoice* PrismVoice;
 
     double lastSampleRate;
+
+    juce::dsp::ProcessorDuplicator <juce::dsp::StateVariableFilter::Filter<float>, juce::dsp::StateVariableFilter::Parameters<float>> stateVarFilter;
+    bool bypassFilter;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PrismAudioProcessor)

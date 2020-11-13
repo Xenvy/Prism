@@ -10,9 +10,11 @@
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
-#include "Oscillator.h"
+#include "OscillatorA.h"
+#include "OscillatorB.h"
 #include "ADSR_Envelope.h"
 #include "Filter.h"
+#include "GUI.h"
 
 //==============================================================================
 /**
@@ -21,7 +23,8 @@ class PrismAudioProcessorEditor  : public juce::AudioProcessorEditor
 {
 public:
     PrismAudioProcessorEditor (PrismAudioProcessor&);
-    ~PrismAudioProcessorEditor() override;
+   // ~PrismAudioProcessorEditor() override;
+    ~PrismAudioProcessorEditor();
 
     //==============================================================================
     void paint (juce::Graphics&) override;
@@ -32,9 +35,11 @@ private:
     // access the processor object that created it.
     PrismAudioProcessor& audioProcessor;
 
-    Oscillator oscA;
+    OscillatorA oscA;
+    OscillatorB oscB;
     ADSR_Envelope adsrA;
     Filter filterA;
+    GUI gui;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PrismAudioProcessorEditor)
 };

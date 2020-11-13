@@ -16,9 +16,44 @@
 class SynthVoice : public juce::SynthesiserVoice
 {
     public:
-        bool canPlaySound(juce::SynthesiserSound* sound)
+        bool canPlaySound(juce::SynthesiserSound* sound) override
         {
             return dynamic_cast<SynthSound*>(sound) != nullptr;
+        }
+
+        void setPitchBend(int pitchWheelPos)
+        {
+            if (pitchWheelPos > 8192)
+            {
+                // shifting up
+                pitchBend = float(pitchWheelPos - 8192) / (16383 - 8192);
+            }
+            else
+            {
+                // shifting down
+                pitchBend = float(8192 - pitchWheelPos) / -8192;    // negative number
+            }
+        }
+
+        float pitchBendCents()
+        {
+            if (pitchBend >= 0.0f)
+            {
+                // shifting up
+                return pitchBend * pitchBendUpSemitones * 100;
+            }
+            else
+            {
+                // shifting down
+                return pitchBend * pitchBendDownSemitones * 100;
+            }
+        }
+
+        static double noteHz(int midiNoteNumber, double centsOffset)
+        {
+            double hertz = juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber);
+            hertz *= std::pow(2.0, centsOffset / 1200);
+            return hertz;
         }
 
         void getADSRParam(float* attack, float* decay, float* sustain, float* release)
@@ -31,34 +66,70 @@ class SynthVoice : public juce::SynthesiserVoice
 
         double setADSR()
         {
-            return envelope1.adsr(setOscType(), envelope1.trigger)*level;
+            return envelope1.adsr(setOscType(), envelope1.trigger);
         }
 
-        void getWaveformType(float* selection)
+        void getWaveformAType(float* selection)
         {
-            wave = *selection;
+            waveA = *selection;
+        }
+
+        void getWaveformBType(float* selection)
+        {
+            waveB = *selection;
         }
 
         double setOscType()
         {
-            switch (wave)
+            double sampleA, sampleB;
+
+            switch (waveA)
             {
                 case 0:
-                    return oscA.sinewave(frequency);
+                    sampleA = oscA.sinewave(frequency);
                     break;
                 case 1:
-                    return oscA.saw(frequency);
+                    sampleA = oscA.saw(frequency);
                     break;
                 case 2:
-                    return oscA.square(frequency);
+                    sampleA = oscA.square(frequency);
                     break;
                 case 3:
-                    return oscA.triangle(frequency);
+                    sampleA = oscA.triangle(frequency);
                     break;
                 default:
-                    return oscA.sinewave(frequency);
+                    sampleA = oscA.sinewave(frequency);
                     break;
             }
+
+            switch (waveB)
+            {
+            case 0:
+                sampleB = oscB.sinewave(frequency);
+                break;
+            case 1:
+                sampleB = oscB.saw(frequency);
+                break;
+            case 2:
+                sampleB = oscB.square(frequency);
+                break;
+            case 3:
+                sampleB = oscB.triangle(frequency);
+                break;
+            default:
+                sampleB = oscB.sinewave(frequency);
+                break;
+            }
+
+            return sampleA + sampleB * oscBblend;
+        }
+
+        void getParams(float* mVol, float* blend, float* pbup, float* pbdn)
+        {
+            masterVolume = *mVol;
+            oscBblend = *blend;
+            pitchBendUpSemitones = *pbup;
+            pitchBendDownSemitones = *pbdn;
         }
 
         void getFilterParam(float* type, float* cutoff, float* resonance)
@@ -68,37 +139,14 @@ class SynthVoice : public juce::SynthesiserVoice
             filterResonance = *resonance;
         }
 
-        double setFilterType()
-        {
-            switch (filterType)
-            {
-            case 0:
-                return setADSR();
-                break;
-
-            case 1:
-                return filterA.lores(setADSR(), filterCutoff, filterResonance);
-                break;
-
-            case 2:
-                return filterA.hires(setADSR(), filterCutoff, filterResonance);
-                break;
-
-            case 3:
-                return filterA.bandpass(setADSR(), filterCutoff, filterResonance);
-                break;
-
-            default:
-                return setADSR();
-                break;
-            }
-        }
 
         void startNote(int midiNoteNumber, float velocity, juce::SynthesiserSound* sound, int currentPitchWheelPosition)
         {
+            noteNumber = midiNoteNumber;
             envelope1.trigger = 1;
+            setPitchBend(currentPitchWheelPosition);
             level = velocity;
-            frequency = juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber);
+            frequency = noteHz(noteNumber, pitchBendCents());
         }
 
         void stopNote(float velocity, bool allowTailOff)
@@ -114,7 +162,8 @@ class SynthVoice : public juce::SynthesiserVoice
 
         void pitchWheelMoved(int newPitchWheelValue)
         {
-
+            setPitchBend(newPitchWheelValue);
+            frequency = noteHz(noteNumber, pitchBendCents());
         }
 
         void controllerMoved(int controllerNumber, int newControllerValue)
@@ -130,7 +179,7 @@ class SynthVoice : public juce::SynthesiserVoice
 
                 for (int channel = 0; channel < outputBuffer.getNumChannels(); ++channel)
                 {
-                    outputBuffer.addSample(channel, startSample, setFilterType());
+                    outputBuffer.addSample(channel, startSample, setADSR()*masterVolume);
                 }
 
                 ++startSample;
@@ -140,13 +189,21 @@ class SynthVoice : public juce::SynthesiserVoice
     private:
         double level;
         double frequency;
-        int wave;
+        int waveA, waveB;
+
+        float masterVolume;
+        float oscBblend;
+
+        int noteNumber;
+        float pitchBend = 0.0f;
+        float pitchBendUpSemitones = 2.0f;
+        float pitchBendDownSemitones = 2.0f;
 
         int filterType;
         float filterCutoff;
         float filterResonance;
 
-        maxiOsc oscA;
+        maxiOsc oscA, oscB;
         maxiEnv envelope1;
-        maxiFilter filterA;
+
 };
