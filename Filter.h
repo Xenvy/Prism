@@ -20,8 +20,7 @@ class Filter  : public juce::Component
 {
 public:
     Filter(PrismAudioProcessor&);
-    //~Filter() override;
-    ~Filter();
+    ~Filter() override;
 
     void paint (juce::Graphics&) override;
     void resized() override;

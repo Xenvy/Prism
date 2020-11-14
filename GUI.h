@@ -20,8 +20,7 @@ class GUI  : public juce::Component
 {
 public:
     GUI(PrismAudioProcessor&);
-    //~GUI() override;
-    ~GUI();
+    ~GUI() override;
 
     void paint (juce::Graphics&) override;
     void resized() override;

@@ -12,7 +12,10 @@
 #include "PluginProcessor.h"
 #include "OscillatorA.h"
 #include "OscillatorB.h"
-#include "ADSR_Envelope.h"
+#include "ADSR_A_Envelope.h"
+#include "ADSR_B_Envelope.h"
+#include "Custom_Envelope_1.h"
+#include "Custom_Envelope_2.h"
 #include "Filter.h"
 #include "GUI.h"
 
@@ -23,8 +26,7 @@ class PrismAudioProcessorEditor  : public juce::AudioProcessorEditor
 {
 public:
     PrismAudioProcessorEditor (PrismAudioProcessor&);
-   // ~PrismAudioProcessorEditor() override;
-    ~PrismAudioProcessorEditor();
+    ~PrismAudioProcessorEditor() override;
 
     //==============================================================================
     void paint (juce::Graphics&) override;
@@ -37,7 +39,10 @@ private:
 
     OscillatorA oscA;
     OscillatorB oscB;
-    ADSR_Envelope adsrA;
+    ADSR_A_Envelope adsrA;
+    ADSR_B_Envelope adsrB;
+    Custom_Envelope_1 envelope1;
+    Custom_Envelope_2 envelope2;
     Filter filterA;
     GUI gui;
 

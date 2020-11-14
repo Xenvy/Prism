@@ -25,6 +25,14 @@ OscillatorA::OscillatorA(PrismAudioProcessor& p):
     addAndMakeVisible(&oscAWaveform);
 
     WaveformA = std::make_unique <juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.tree, "waveformA", oscAWaveform);
+
+    mixASlider.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
+    mixASlider.setRange(0.0f, 1.0f);
+    mixASlider.setValue(0.5f);
+    mixASlider.setTextBoxStyle(juce::Slider::NoTextBox, true, 0, 0);
+    addAndMakeVisible(&mixASlider);
+
+    mixAValue = std::make_unique <juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.tree, "mixA", mixASlider);
 }
 
 OscillatorA::~OscillatorA()
@@ -54,6 +62,11 @@ void OscillatorA::resized()
     juce::Rectangle<int> area = getLocalBounds().reduced(40);
 
     oscAWaveform.setBounds(area.removeFromTop(20));
+
+    int sliderWidth = 25;
+    int sliderHeight = 175;
+
+    mixASlider.setBounds(area.removeFromLeft(sliderWidth).removeFromTop(sliderHeight).withTrimmedTop(10));
 }
 
 //void OscillatorA::comboBoxChanged(juce::ComboBox* combobox)

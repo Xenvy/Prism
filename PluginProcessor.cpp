@@ -21,16 +21,29 @@ PrismAudioProcessor::PrismAudioProcessor()
                      #endif
                        ),
     tree(*this, nullptr, "PARAMETERS",
-        { std::make_unique<juce::AudioParameterFloat>("attack", "Attack", juce::NormalisableRange<float>(0.0f, 5000.0f), 20.0f),
-          std::make_unique<juce::AudioParameterFloat>("decay", "Decay", juce::NormalisableRange<float>(0.0f, 5000.0f), 500.0f),
-          std::make_unique<juce::AudioParameterFloat>("sustain", "Sustain", juce::NormalisableRange<float>(0.0f, 1.0f), 0.5f),
-          std::make_unique<juce::AudioParameterFloat>("release", "Release", juce::NormalisableRange<float>(0.0f, 5000.0f), 800.0f),
+        { std::make_unique<juce::AudioParameterFloat>("attackA", "AttackA", juce::NormalisableRange<float>(0.0f, 5000.0f), 20.0f),
+          std::make_unique<juce::AudioParameterFloat>("decayA", "DecayA", juce::NormalisableRange<float>(0.0f, 5000.0f), 500.0f),
+          std::make_unique<juce::AudioParameterFloat>("sustainA", "SustainA", juce::NormalisableRange<float>(0.0f, 1.0f), 0.5f),
+          std::make_unique<juce::AudioParameterFloat>("releaseA", "ReleaseA", juce::NormalisableRange<float>(0.0f, 5000.0f), 800.0f),
+          std::make_unique<juce::AudioParameterFloat>("attackB", "AttackB", juce::NormalisableRange<float>(0.0f, 5000.0f), 20.0f),
+          std::make_unique<juce::AudioParameterFloat>("decayB", "DecayB", juce::NormalisableRange<float>(0.0f, 5000.0f), 500.0f),
+          std::make_unique<juce::AudioParameterFloat>("sustainB", "SustainB", juce::NormalisableRange<float>(0.0f, 1.0f), 0.5f),
+          std::make_unique<juce::AudioParameterFloat>("releaseB", "ReleaseB", juce::NormalisableRange<float>(0.0f, 5000.0f), 800.0f),
+          std::make_unique<juce::AudioParameterFloat>("attack1", "Attack1", juce::NormalisableRange<float>(0.0f, 5000.0f), 20.0f),
+          std::make_unique<juce::AudioParameterFloat>("decay1", "Decay1", juce::NormalisableRange<float>(0.0f, 5000.0f), 500.0f),
+          std::make_unique<juce::AudioParameterFloat>("sustain1", "Sustain1", juce::NormalisableRange<float>(0.0f, 1.0f), 0.5f),
+          std::make_unique<juce::AudioParameterFloat>("release1", "Release1", juce::NormalisableRange<float>(0.0f, 5000.0f), 800.0f),
+          std::make_unique<juce::AudioParameterFloat>("attack2", "Attack2", juce::NormalisableRange<float>(0.0f, 5000.0f), 20.0f),
+          std::make_unique<juce::AudioParameterFloat>("decay2", "Decay2", juce::NormalisableRange<float>(0.0f, 5000.0f), 500.0f),
+          std::make_unique<juce::AudioParameterFloat>("sustain2", "Sustain2", juce::NormalisableRange<float>(0.0f, 1.0f), 0.5f),
+          std::make_unique<juce::AudioParameterFloat>("release2", "Release2", juce::NormalisableRange<float>(0.0f, 5000.0f), 800.0f),
           std::make_unique<juce::AudioParameterFloat>("waveformA", "WaveformA", juce::NormalisableRange<float>(0, 3), 0),
           std::make_unique<juce::AudioParameterFloat>("waveformB", "WaveformB", juce::NormalisableRange<float>(0, 3), 0),
           std::make_unique<juce::AudioParameterFloat>("cutoff", "Cutoff", juce::NormalisableRange<float>(20.0f, 20000.0f), 500.0f),
           std::make_unique<juce::AudioParameterFloat>("resonance", "Resonance", juce::NormalisableRange<float>(1, 5), 1),
           std::make_unique<juce::AudioParameterFloat>("filterType", "FilterType", juce::NormalisableRange<float>(0, 3), 0),
-          std::make_unique<juce::AudioParameterFloat>("blend", "Blend", juce::NormalisableRange<float>(0.0f, 1.0f), 0.5f),
+          std::make_unique<juce::AudioParameterFloat>("mixA", "MixA", juce::NormalisableRange<float>(0.0f, 1.0f), 0.5f),
+          std::make_unique<juce::AudioParameterFloat>("mixB", "MixB", juce::NormalisableRange<float>(0.0f, 1.0f), 0.5f),
           std::make_unique<juce::AudioParameterFloat>("masterVolume", "MasterVolume", juce::NormalisableRange<float>(0.0f, 1.0f), 0.6f),
           std::make_unique<juce::AudioParameterFloat>("pbup", "PBup", juce::NormalisableRange<float>(1.0f, 12.0f), 1.0f),
           std::make_unique<juce::AudioParameterFloat>("pbdown", "PBdown", juce::NormalisableRange<float>(1.0f, 12.0f), 1.0f) })
@@ -228,24 +241,40 @@ void PrismAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
     {
         if ((PrismVoice = dynamic_cast<SynthVoice*>(Prism.getVoice(i))))
         {
-            float* attackPtr = (float*)tree.getRawParameterValue("attack");
-            float* decayPtr = (float*)tree.getRawParameterValue("decay");
-            float* sustainPtr = (float*)tree.getRawParameterValue("sustain");
-            float* releasePtr = (float*)tree.getRawParameterValue("release");
+            float* attackAPtr = (float*)tree.getRawParameterValue("attackA");
+            float* decayAPtr = (float*)tree.getRawParameterValue("decayA");
+            float* sustainAPtr = (float*)tree.getRawParameterValue("sustainA");
+            float* releaseAPtr = (float*)tree.getRawParameterValue("releaseA");
+            float* attackBPtr = (float*)tree.getRawParameterValue("attackB");
+            float* decayBPtr = (float*)tree.getRawParameterValue("decayB");
+            float* sustainBPtr = (float*)tree.getRawParameterValue("sustainB");
+            float* releaseBPtr = (float*)tree.getRawParameterValue("releaseB");
+            float* attack1Ptr = (float*)tree.getRawParameterValue("attack1");
+            float* decay1Ptr = (float*)tree.getRawParameterValue("decay1");
+            float* sustain1Ptr = (float*)tree.getRawParameterValue("sustain1");
+            float* release1Ptr = (float*)tree.getRawParameterValue("release1");
+            float* attack2Ptr = (float*)tree.getRawParameterValue("attack2");
+            float* decay2Ptr = (float*)tree.getRawParameterValue("decay2");
+            float* sustain2Ptr = (float*)tree.getRawParameterValue("sustain2");
+            float* release2Ptr = (float*)tree.getRawParameterValue("release2");
             float* waveformAPtr = (float*)tree.getRawParameterValue("waveformA");
             float* waveformBPtr = (float*)tree.getRawParameterValue("waveformB");
             float* filterPtr = (float*)tree.getRawParameterValue("filterType");
             float* cutoffPtr = (float*)tree.getRawParameterValue("cutoff");
             float* resonancePtr = (float*)tree.getRawParameterValue("resonance");
-            float* blendPtr = (float*)tree.getRawParameterValue("blend");
+            float* mixAPtr = (float*)tree.getRawParameterValue("mixA");
+            float* mixBPtr = (float*)tree.getRawParameterValue("mixB");
             float* masterVolumePtr = (float*)tree.getRawParameterValue("masterVolume");
             float* pbupPtr = (float*)tree.getRawParameterValue("pbup");
             float* pbdownPtr = (float*)tree.getRawParameterValue("pbdown");
-            PrismVoice->getADSRParam(attackPtr, decayPtr, sustainPtr, releasePtr);
+            PrismVoice->getADSR_AParam(attackAPtr, decayAPtr, sustainAPtr, releaseAPtr);
+            PrismVoice->getADSR_BParam(attackBPtr, decayBPtr, sustainBPtr, releaseBPtr);
+            PrismVoice->getEnv1Param(attack1Ptr, decay1Ptr, sustain1Ptr, release1Ptr);
+            PrismVoice->getEnv2Param(attack2Ptr, decay2Ptr, sustain2Ptr, release2Ptr);
             PrismVoice->getWaveformAType(waveformAPtr);
             PrismVoice->getWaveformBType(waveformBPtr);
             PrismVoice->getFilterParam(filterPtr, cutoffPtr, resonancePtr);
-            PrismVoice->getParams(masterVolumePtr, blendPtr, pbupPtr, pbdownPtr);
+            PrismVoice->getParams(masterVolumePtr, mixAPtr, mixBPtr, pbupPtr, pbdownPtr);
         }
     }
 

@@ -20,8 +20,7 @@ class OscillatorA  : public juce::Component
 {
 public:
     OscillatorA(PrismAudioProcessor&);
-    //~OscillatorA() override;
-    ~OscillatorA();
+    ~OscillatorA() override;
 
     void paint (juce::Graphics&) override;
     void resized() override;
@@ -31,8 +30,10 @@ public:
 private:
 
     juce::ComboBox oscAWaveform;
+    juce::Slider mixASlider;
 
     std::unique_ptr <juce::AudioProcessorValueTreeState::ComboBoxAttachment> WaveformA;
+    std::unique_ptr <juce::AudioProcessorValueTreeState::SliderAttachment> mixAValue;
 
     PrismAudioProcessor& audioProcessor;
 

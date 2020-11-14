@@ -56,17 +56,30 @@ class SynthVoice : public juce::SynthesiserVoice
             return hertz;
         }
 
-        void getADSRParam(float* attack, float* decay, float* sustain, float* release)
+        void getADSR_AParam(float* attack, float* decay, float* sustain, float* release)
         {
-            envelope1.setAttack(double(*attack));
-            envelope1.setDecay(double(*decay));
-            envelope1.setSustain(double(*sustain));
-            envelope1.setRelease(double(*release));
+            ADSR_A.setAttack(double(*attack));
+            ADSR_A.setDecay(double(*decay));
+            ADSR_A.setSustain(double(*sustain));
+            ADSR_A.setRelease(double(*release));
         }
 
-        double setADSR()
+        double setADSR_A()
         {
-            return envelope1.adsr(setOscType(), envelope1.trigger);
+            return ADSR_A.adsr(setOscType(), ADSR_A.trigger);
+        }
+
+        void getADSR_BParam(float* attack, float* decay, float* sustain, float* release)
+        {
+            ADSR_B.setAttack(double(*attack));
+            ADSR_B.setDecay(double(*decay));
+            ADSR_B.setSustain(double(*sustain));
+            ADSR_B.setRelease(double(*release));
+        }
+
+        double setADSR_B()
+        {
+            return ADSR_B.adsr(setOscType(), ADSR_B.trigger);
         }
 
         void getWaveformAType(float* selection)
@@ -104,30 +117,31 @@ class SynthVoice : public juce::SynthesiserVoice
 
             switch (waveB)
             {
-            case 0:
-                sampleB = oscB.sinewave(frequency);
-                break;
-            case 1:
-                sampleB = oscB.saw(frequency);
-                break;
-            case 2:
-                sampleB = oscB.square(frequency);
-                break;
-            case 3:
-                sampleB = oscB.triangle(frequency);
-                break;
-            default:
-                sampleB = oscB.sinewave(frequency);
-                break;
+                case 0:
+                    sampleB = oscB.sinewave(frequency);
+                    break;
+                case 1:
+                    sampleB = oscB.saw(frequency);
+                    break;
+                case 2:
+                    sampleB = oscB.square(frequency);
+                    break;
+                case 3:
+                    sampleB = oscB.triangle(frequency);
+                    break;
+                default:
+                    sampleB = oscB.sinewave(frequency);
+                    break;
             }
 
-            return sampleA + sampleB * oscBblend;
+            return sampleA * oscAMix + sampleB * oscBMix;
         }
 
-        void getParams(float* mVol, float* blend, float* pbup, float* pbdn)
+        void getParams(float* mVol, float* mixA, float* mixB, float* pbup, float* pbdn)
         {
             masterVolume = *mVol;
-            oscBblend = *blend;
+            oscAMix = *mixA;
+            oscBMix = *mixB;
             pitchBendUpSemitones = *pbup;
             pitchBendDownSemitones = *pbdn;
         }
@@ -139,11 +153,39 @@ class SynthVoice : public juce::SynthesiserVoice
             filterResonance = *resonance;
         }
 
+        void getEnv1Param(float* attack, float* decay, float* sustain, float* release)
+        {
+            env1.setAttack(double(*attack));
+            env1.setDecay(double(*decay));
+            env1.setSustain(double(*sustain));
+            env1.setRelease(double(*release));
+        }
+
+        void getEnv2Param(float* attack, float* decay, float* sustain, float* release)
+        {
+            env2.setAttack(double(*attack));
+            env2.setDecay(double(*decay));
+            env2.setSustain(double(*sustain));
+            env2.setRelease(double(*release));
+        }
+
+        double setEnv1()
+        {
+
+        }
+
+        double setEnv2()
+        {
+
+        }
 
         void startNote(int midiNoteNumber, float velocity, juce::SynthesiserSound* sound, int currentPitchWheelPosition)
         {
             noteNumber = midiNoteNumber;
-            envelope1.trigger = 1;
+            ADSR_A.trigger = 1;
+            ADSR_B.trigger = 1;
+            env1.trigger = 1;
+            env2.trigger = 1;
             setPitchBend(currentPitchWheelPosition);
             level = velocity;
             frequency = noteHz(noteNumber, pitchBendCents());
@@ -151,7 +193,10 @@ class SynthVoice : public juce::SynthesiserVoice
 
         void stopNote(float velocity, bool allowTailOff)
         {
-            envelope1.trigger = 0;
+            ADSR_A.trigger = 0;
+            ADSR_B.trigger = 0;
+            env1.trigger = 0;
+            env2.trigger = 0;
             allowTailOff = true;
 
             if (velocity == 0)
@@ -179,7 +224,7 @@ class SynthVoice : public juce::SynthesiserVoice
 
                 for (int channel = 0; channel < outputBuffer.getNumChannels(); ++channel)
                 {
-                    outputBuffer.addSample(channel, startSample, setADSR()*masterVolume);
+                    outputBuffer.addSample(channel, startSample, setADSR_A()*masterVolume);
                 }
 
                 ++startSample;
@@ -192,7 +237,7 @@ class SynthVoice : public juce::SynthesiserVoice
         int waveA, waveB;
 
         float masterVolume;
-        float oscBblend;
+        float oscAMix, oscBMix;
 
         int noteNumber;
         float pitchBend = 0.0f;
@@ -204,6 +249,6 @@ class SynthVoice : public juce::SynthesiserVoice
         float filterResonance;
 
         maxiOsc oscA, oscB;
-        maxiEnv envelope1;
+        maxiEnv ADSR_A, ADSR_B, env1, env2;
 
 };

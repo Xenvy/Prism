@@ -11,15 +11,18 @@
 
 //==============================================================================
 PrismAudioProcessorEditor::PrismAudioProcessorEditor (PrismAudioProcessor& p)
-    : AudioProcessorEditor (&p), audioProcessor (p), oscA(p), oscB(p), adsrA(p), filterA(p), gui(p)
+    : AudioProcessorEditor (&p), audioProcessor (p), oscA(p), oscB(p), adsrA(p), adsrB(p), envelope1(p), envelope2(p), filterA(p), gui(p)
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (1000, 200);
+    setSize (1600, 200);
 
     addAndMakeVisible(&oscA);
     addAndMakeVisible(&oscB);
     addAndMakeVisible(&adsrA);
+    addAndMakeVisible(&adsrB);
+    addAndMakeVisible(&envelope1);
+    addAndMakeVisible(&envelope2);
     addAndMakeVisible(&filterA);
     addAndMakeVisible(&gui);
 }
@@ -49,6 +52,9 @@ void PrismAudioProcessorEditor::resized()
     oscA.setBounds(area.removeFromLeft(componentWidth).removeFromTop(componentHeight));
     oscB.setBounds(area.removeFromLeft(componentWidth).removeFromTop(componentHeight));
     adsrA.setBounds(area.removeFromLeft(componentWidth).removeFromTop(componentHeight));
+    adsrB.setBounds(area.removeFromLeft(componentWidth).removeFromTop(componentHeight));
+    envelope1.setBounds(area.removeFromLeft(componentWidth).removeFromTop(componentHeight));
+    envelope2.setBounds(area.removeFromLeft(componentWidth).removeFromTop(componentHeight));
     filterA.setBounds(area.removeFromLeft(componentWidth).removeFromTop(componentHeight));
     gui.setBounds(area.removeFromLeft(componentWidth).removeFromTop(componentHeight));
 }

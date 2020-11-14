@@ -20,8 +20,7 @@ class PrismAudioProcessor  : public juce::AudioProcessor
 public:
     //==============================================================================
     PrismAudioProcessor();
-    //~PrismAudioProcessor() override;
-    ~PrismAudioProcessor();
+    ~PrismAudioProcessor() override;
 
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;

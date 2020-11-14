@@ -28,13 +28,13 @@ OscillatorB::OscillatorB(PrismAudioProcessor& p):
 
     WaveformB = std::make_unique <juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.tree, "waveformB", oscBWaveform);
 
-    blendSlider.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
-    blendSlider.setRange(0.0f, 1.0f);
-    blendSlider.setValue(0.5f);
-    blendSlider.setTextBoxStyle(juce::Slider::NoTextBox, true, 0, 0);
-    addAndMakeVisible(&blendSlider);
+    mixBSlider.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
+    mixBSlider.setRange(0.0f, 1.0f);
+    mixBSlider.setValue(0.5f);
+    mixBSlider.setTextBoxStyle(juce::Slider::NoTextBox, true, 0, 0);
+    addAndMakeVisible(&mixBSlider);
 
-    blendValue = std::make_unique <juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.tree, "blend", blendSlider);
+    mixBValue = std::make_unique <juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.tree, "mixB", mixBSlider);
 }
 
 OscillatorB::~OscillatorB()
@@ -67,7 +67,7 @@ void OscillatorB::resized()
     int sliderWidth = 25;
     int sliderHeight = 175;
 
-    blendSlider.setBounds(area.removeFromLeft(sliderWidth).removeFromTop(sliderHeight).withTrimmedTop(10));
+    mixBSlider.setBounds(area.removeFromLeft(sliderWidth).removeFromTop(sliderHeight).withTrimmedTop(10));
 }
 
 //void OscillatorB::comboBoxChanged(juce::ComboBox* combobox)
