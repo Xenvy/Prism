@@ -16,6 +16,8 @@
 #include "ADSR_B_Envelope.h"
 #include "Custom_Envelope_1.h"
 #include "Custom_Envelope_2.h"
+#include "LFO_1.h"
+#include "LFO_2.h"
 #include "Filter.h"
 #include "GUI.h"
 
@@ -43,6 +45,8 @@ private:
     ADSR_B_Envelope adsrB;
     Custom_Envelope_1 envelope1;
     Custom_Envelope_2 envelope2;
+    LFO_1 lfo1;
+    LFO_2 lfo2;
     Filter filterA;
     GUI gui;
 

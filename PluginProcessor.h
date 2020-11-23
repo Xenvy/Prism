@@ -68,6 +68,7 @@ private:
 
     juce::dsp::ProcessorDuplicator <juce::dsp::StateVariableFilter::Filter<float>, juce::dsp::StateVariableFilter::Parameters<float>> stateVarFilter;
     bool bypassFilter;
+    float filterCutoff;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PrismAudioProcessor)

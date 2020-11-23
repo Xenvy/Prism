@@ -41,25 +41,24 @@ Custom_Envelope_1::Custom_Envelope_1(PrismAudioProcessor& p):
     releaseSlider1.setValue(800.0f);
 
     envTypeSelection1.addItem("None", 1);
-    envTypeSelection1.addItem("Cutoff A", 2);
-    envTypeSelection1.addItem("Cutoff B", 3);
-    envTypeSelection1.addItem("Pitch A", 4);
-    envTypeSelection1.addItem("Pitch B", 5);
-    envTypeSelection1.addItem("Pan A", 6);
-    envTypeSelection1.addItem("Pan A", 7);
+    envTypeSelection1.addItem("Filter cutoff", 2);
+    envTypeSelection1.addItem("Pitch A", 3);
+    envTypeSelection1.addItem("Pitch B", 4);
+    envTypeSelection1.addItem("Pan A", 5);
+    envTypeSelection1.addItem("Pan B", 6);
     envTypeSelection1.setJustificationType(juce::Justification::centred);
     addAndMakeVisible(&envTypeSelection1);
-    envType1 = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.tree, "filterType", envTypeSelection1);
+    envType1 = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.tree, "envType1", envTypeSelection1);
 
     addAndMakeVisible(&attackSlider1);
     addAndMakeVisible(&decaySlider1);
     addAndMakeVisible(&sustainSlider1);
     addAndMakeVisible(&releaseSlider1);
 
-    treeAttack1 = std::make_unique <juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.tree, "attackA", attackSlider1);
-    treeDecay1 = std::make_unique <juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.tree, "decayA", decaySlider1);
-    treeSustain1 = std::make_unique <juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.tree, "sustainA", sustainSlider1);
-    treeRelease1 = std::make_unique <juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.tree, "releaseA", releaseSlider1);
+    treeAttack1 = std::make_unique <juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.tree, "attack1", attackSlider1);
+    treeDecay1 = std::make_unique <juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.tree, "decay1", decaySlider1);
+    treeSustain1 = std::make_unique <juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.tree, "sustain1", sustainSlider1);
+    treeRelease1 = std::make_unique <juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.tree, "release1", releaseSlider1);
 
 }
 
@@ -90,7 +89,7 @@ void Custom_Envelope_1::paint (juce::Graphics& g)
 
     juce::Rectangle <float> area(25, 25, 150, 150);
 
-    g.setColour(juce::Colours::yellow);
+    g.setColour(juce::Colours::lightblue);
     g.drawRoundedRectangle(area, 20.0f, 2.0f);
 }
 

@@ -79,7 +79,7 @@ void ADSR_B_Envelope::paint (juce::Graphics& g)
 
     juce::Rectangle <float> area(25, 25, 150, 150);
 
-    g.setColour(juce::Colours::yellow);
+    g.setColour(juce::Colours::lightblue);
     g.drawRoundedRectangle(area, 20.0f, 2.0f);
 }
 

@@ -66,7 +66,7 @@ class SynthVoice : public juce::SynthesiserVoice
 
         double setADSR_A()
         {
-            return ADSR_A.adsr(setOscType(), ADSR_A.trigger);
+            return ADSR_A.adsr(setOscTypeA()*oscAMix, ADSR_A.trigger);
         }
 
         void getADSR_BParam(float* attack, float* decay, float* sustain, float* release)
@@ -79,7 +79,7 @@ class SynthVoice : public juce::SynthesiserVoice
 
         double setADSR_B()
         {
-            return ADSR_B.adsr(setOscType(), ADSR_B.trigger);
+            return ADSR_B.adsr(setOscTypeB()*oscBMix, ADSR_B.trigger);
         }
 
         void getWaveformAType(float* selection)
@@ -92,49 +92,50 @@ class SynthVoice : public juce::SynthesiserVoice
             waveB = *selection;
         }
 
-        double setOscType()
+        double setOscTypeA()
         {
-            double sampleA, sampleB;
 
             switch (waveA)
             {
                 case 0:
-                    sampleA = oscA.sinewave(frequency);
+                    return oscA.sinewave(frequencyA);
                     break;
                 case 1:
-                    sampleA = oscA.saw(frequency);
+                    return oscA.saw(frequencyA);
                     break;
                 case 2:
-                    sampleA = oscA.square(frequency);
+                    return oscA.square(frequencyA);
                     break;
                 case 3:
-                    sampleA = oscA.triangle(frequency);
+                    return oscA.triangle(frequencyA);
                     break;
                 default:
-                    sampleA = oscA.sinewave(frequency);
+                    return oscA.sinewave(frequencyA);
                     break;
             }
 
+        }
+
+        double setOscTypeB()
+        {
             switch (waveB)
             {
-                case 0:
-                    sampleB = oscB.sinewave(frequency);
-                    break;
-                case 1:
-                    sampleB = oscB.saw(frequency);
-                    break;
-                case 2:
-                    sampleB = oscB.square(frequency);
-                    break;
-                case 3:
-                    sampleB = oscB.triangle(frequency);
-                    break;
-                default:
-                    sampleB = oscB.sinewave(frequency);
-                    break;
+            case 0:
+                return oscB.sinewave(frequencyB);
+                break;
+            case 1:
+                return oscB.saw(frequencyB);
+                break;
+            case 2:
+                return oscB.square(frequencyB);
+                break;
+            case 3:
+                return oscB.triangle(frequencyB);
+                break;
+            default:
+                return oscB.sinewave(frequencyB);
+                break;
             }
-
-            return sampleA * oscAMix + sampleB * oscBMix;
         }
 
         void getParams(float* mVol, float* mixA, float* mixB, float* pbup, float* pbdn)
@@ -169,14 +170,175 @@ class SynthVoice : public juce::SynthesiserVoice
             env2.setRelease(double(*release));
         }
 
-        double setEnv1()
+        void getEnv1Type(float* selection)
         {
-
+            env1Type = *selection;
         }
 
-        double setEnv2()
+        void getEnv2Type(float* selection)
         {
+            env2Type = *selection;
+        }
 
+        double getFilterEnv1()
+        {
+            return env1.adsr(filterCutoff, env1.trigger);
+        }
+
+        double getFilterEnv2()
+        {
+            return env2.adsr(filterCutoff, env2.trigger);
+        }
+
+        void setEnv1()
+        {
+            switch (env1Type)
+            {
+                case 0:
+                    resetEnv();
+                    break;
+                case 1:
+                    break;
+                case 2:
+                    frequencyA = noteHz(noteNumber, env1.adsr(pitchoffsetA, env1.trigger));
+                    break;
+                case 3:
+                    frequencyB = noteHz(noteNumber, env1.adsr(pitchoffsetB, env1.trigger));
+                    break;
+                case 4:
+                    levelRA = env1.adsr(panningA, env1.trigger);
+                    break;
+                case 5:
+                    levelRB = env1.adsr(panningB, env1.trigger);
+                    break;
+                default:
+                    break;
+            }
+        }   
+
+        void setEnv2()
+        {
+            switch (env2Type)
+            {
+                case 0:
+                    resetEnv();
+                    break;
+                case 1:
+                    break;
+                case 2:
+                    frequencyA = noteHz(noteNumber, env2.adsr(pitchoffsetA, env2.trigger));
+                    break;
+                case 3:
+                    frequencyB = noteHz(noteNumber, env2.adsr(pitchoffsetB, env2.trigger));
+                    break;
+                case 4:
+                    levelRA = env2.adsr(panningA, env2.trigger);
+                    break;
+                case 5:
+                    levelRB = env2.adsr(panningB, env2.trigger);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        void getLFO1Param(float* type, float* rate, float* depth)
+        {
+            LFO1Type = *type;
+            LFO1Rate = *rate;
+            LFO1Depth = *depth;
+        }
+
+        void getLFO2Param(float* type, float* rate, float* depth)
+        {
+            LFO2Type = *type;
+            LFO2Rate = *rate;
+            LFO2Depth = *depth;
+        }
+
+        void set_LFO_1()
+        {
+            switch (LFO1Type)
+            {
+            case 0:
+                resetLFO();
+                break;
+            case 1:
+                break;
+            case 2:
+                break;
+            case 3:
+                LFO_VolumeA = LFO1.sinewave(LFO1Rate) * LFO1Depth + 1;
+                break;
+            case 4:
+                LFO_VolumeB = LFO1.sinewave(LFO1Rate) * LFO1Depth + 1;
+                break;
+            case 5:
+                frequencyA = frequencyA * (LFO1.sinewave(LFO1Rate) * LFO1Depth * 0.25f + 1);
+                break;
+            case 6:
+                frequencyB = frequencyB * (LFO1.sinewave(LFO1Rate) * LFO1Depth * 0.25f + 1);
+                break;
+            case 7:
+                levelRA = levelRA * (LFO1.sinewave(LFO1Rate) * LFO1Depth + 1);
+                break;
+            case 8:
+                levelRB = levelRB * (LFO1.sinewave(LFO1Rate) * LFO1Depth + 1);
+                break;
+            default:
+                break;
+            }
+        }
+
+        void set_LFO_2()
+        {
+            switch (LFO2Type)
+            {
+            case 0:
+                resetLFO();
+                break;
+            case 1:
+                break;
+            case 2:
+                break;
+            case 3:
+                LFO_VolumeA = LFO2.sinewave(LFO2Rate) * LFO2Depth + 1;
+                break;
+            case 4:
+                LFO_VolumeB = LFO2.sinewave(LFO2Rate) * LFO2Depth + 1;
+                break;
+            case 5:
+                frequencyA = frequencyA * (LFO2.sinewave(LFO2Rate) * LFO2Depth * 0.25f + 1);
+                break;
+            case 6:
+                frequencyB = frequencyB * (LFO2.sinewave(LFO2Rate) * LFO2Depth * 0.25f + 1);
+                break;
+            case 7:
+                levelRA = levelRA * (LFO2.sinewave(LFO2Rate) * LFO2Depth + 1);
+                break;
+            case 8:
+                levelRB = levelRB * (LFO2.sinewave(LFO2Rate) * LFO2Depth + 1);
+                break;
+            default:
+                break;
+            }
+        }
+
+        void resetEnv()
+        {
+            frequencyA = noteHz(noteNumber, 0);
+            frequencyB = noteHz(noteNumber, 0);
+
+            panningA = 1;
+            panningB = 1;
+            levelRA = 0.5f;
+            levelRB = 0.5f;
+        }
+
+        void resetLFO()
+        {
+            LFO_VolumeA = 1.0f;
+            LFO_VolumeB = 1.0f;
         }
 
         void startNote(int midiNoteNumber, float velocity, juce::SynthesiserSound* sound, int currentPitchWheelPosition)
@@ -188,7 +350,17 @@ class SynthVoice : public juce::SynthesiserVoice
             env2.trigger = 1;
             setPitchBend(currentPitchWheelPosition);
             level = velocity;
-            frequency = noteHz(noteNumber, pitchBendCents());
+
+            frequencyA = noteHz(noteNumber, pitchBendCents());
+            frequencyB = noteHz(noteNumber, pitchBendCents());
+
+            panningA = 1;
+            panningB = 1;
+            levelRA = 0.5f;
+            levelRB = 0.5f;
+
+            LFO_VolumeA = 1.0f;
+            LFO_VolumeB = 1.0f;
         }
 
         void stopNote(float velocity, bool allowTailOff)
@@ -208,7 +380,8 @@ class SynthVoice : public juce::SynthesiserVoice
         void pitchWheelMoved(int newPitchWheelValue)
         {
             setPitchBend(newPitchWheelValue);
-            frequency = noteHz(noteNumber, pitchBendCents());
+            frequencyA = noteHz(noteNumber, pitchBendCents());
+            frequencyB = noteHz(noteNumber, pitchBendCents());
         }
 
         void controllerMoved(int controllerNumber, int newControllerValue)
@@ -224,7 +397,18 @@ class SynthVoice : public juce::SynthesiserVoice
 
                 for (int channel = 0; channel < outputBuffer.getNumChannels(); ++channel)
                 {
-                    outputBuffer.addSample(channel, startSample, setADSR_A()*masterVolume);
+                    setEnv1();
+                    setEnv2();
+                    set_LFO_1();
+                    set_LFO_2();
+                    if (channel == 0)
+                    {
+                        outputBuffer.addSample(channel, startSample, (setADSR_A()*(1.0-levelRA)*LFO_VolumeA + setADSR_B()*(1.0-levelRB)*LFO_VolumeB) * masterVolume);
+                    }
+                    else
+                    {
+                        outputBuffer.addSample(channel, startSample, (setADSR_A() * levelRA * LFO_VolumeA + setADSR_B() * levelRB * LFO_VolumeB) * masterVolume);
+                    }
                 }
 
                 ++startSample;
@@ -233,8 +417,22 @@ class SynthVoice : public juce::SynthesiserVoice
 
     private:
         double level;
-        double frequency;
+        double frequencyA, frequencyB;
         int waveA, waveB;
+        int env1Type, env2Type;
+        int LFO1Type, LFO2Type;
+
+        float LFO1Rate, LFO2Rate, LFO1Depth, LFO2Depth;
+
+        float pitchoffsetA = 1200.0f;
+        float pitchoffsetB = 1200.0f;
+        float panningA = 1;
+        float panningB = 1;
+        float levelRA = 0.5f;
+        float levelRB = 0.5f;
+
+        float LFO_VolumeA = 1.0f;
+        float LFO_VolumeB = 1.0f;
 
         float masterVolume;
         float oscAMix, oscBMix;
@@ -248,7 +446,7 @@ class SynthVoice : public juce::SynthesiserVoice
         float filterCutoff;
         float filterResonance;
 
-        maxiOsc oscA, oscB;
+        maxiOsc oscA, oscB, LFO1, LFO2;
         maxiEnv ADSR_A, ADSR_B, env1, env2;
 
 };

@@ -11,11 +11,11 @@
 
 //==============================================================================
 PrismAudioProcessorEditor::PrismAudioProcessorEditor (PrismAudioProcessor& p)
-    : AudioProcessorEditor (&p), audioProcessor (p), oscA(p), oscB(p), adsrA(p), adsrB(p), envelope1(p), envelope2(p), filterA(p), gui(p)
+    : AudioProcessorEditor (&p), audioProcessor (p), oscA(p), oscB(p), adsrA(p), adsrB(p), envelope1(p), envelope2(p), lfo1(p), lfo2(p), filterA(p), gui(p)
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (1600, 200);
+    setSize (1000, 400);
 
     addAndMakeVisible(&oscA);
     addAndMakeVisible(&oscB);
@@ -23,6 +23,8 @@ PrismAudioProcessorEditor::PrismAudioProcessorEditor (PrismAudioProcessor& p)
     addAndMakeVisible(&adsrB);
     addAndMakeVisible(&envelope1);
     addAndMakeVisible(&envelope2);
+    addAndMakeVisible(&lfo1);
+    addAndMakeVisible(&lfo2);
     addAndMakeVisible(&filterA);
     addAndMakeVisible(&gui);
 }
@@ -50,12 +52,15 @@ void PrismAudioProcessorEditor::resized()
     const int componentHeight = 200;
     const int componentWidth = 200;
     oscA.setBounds(area.removeFromLeft(componentWidth).removeFromTop(componentHeight));
-    oscB.setBounds(area.removeFromLeft(componentWidth).removeFromTop(componentHeight));
     adsrA.setBounds(area.removeFromLeft(componentWidth).removeFromTop(componentHeight));
-    adsrB.setBounds(area.removeFromLeft(componentWidth).removeFromTop(componentHeight));
     envelope1.setBounds(area.removeFromLeft(componentWidth).removeFromTop(componentHeight));
-    envelope2.setBounds(area.removeFromLeft(componentWidth).removeFromTop(componentHeight));
+    lfo1.setBounds(area.removeFromLeft(componentWidth).removeFromTop(componentHeight));
     filterA.setBounds(area.removeFromLeft(componentWidth).removeFromTop(componentHeight));
-    gui.setBounds(area.removeFromLeft(componentWidth).removeFromTop(componentHeight));
+    area.expand(componentWidth*4, componentHeight);
+    oscB.setBounds(area.removeFromBottom(componentHeight).removeFromLeft(componentWidth));
+    adsrB.setBounds(area.removeFromLeft(componentWidth).removeFromBottom(componentHeight));
+    envelope2.setBounds(area.removeFromLeft(componentWidth).removeFromBottom(componentHeight));
+    lfo2.setBounds(area.removeFromLeft(componentWidth).removeFromBottom(componentHeight));
+    gui.setBounds(area.removeFromLeft(componentWidth).removeFromBottom(componentHeight));
 }
 

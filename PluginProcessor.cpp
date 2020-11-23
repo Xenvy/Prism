@@ -42,6 +42,14 @@ PrismAudioProcessor::PrismAudioProcessor()
           std::make_unique<juce::AudioParameterFloat>("cutoff", "Cutoff", juce::NormalisableRange<float>(20.0f, 20000.0f), 500.0f),
           std::make_unique<juce::AudioParameterFloat>("resonance", "Resonance", juce::NormalisableRange<float>(1, 5), 1),
           std::make_unique<juce::AudioParameterFloat>("filterType", "FilterType", juce::NormalisableRange<float>(0, 3), 0),
+          std::make_unique<juce::AudioParameterFloat>("envType1", "EnvType1", juce::NormalisableRange<float>(0, 5), 0),
+          std::make_unique<juce::AudioParameterFloat>("envType2", "EnvType2", juce::NormalisableRange<float>(0, 5), 0),
+          std::make_unique<juce::AudioParameterFloat>("LFOrate1", "LFO_1_Rate", juce::NormalisableRange<float>(0.1f, 20.0f), 1.0f),
+          std::make_unique<juce::AudioParameterFloat>("LFOdepth1", "LFO_1_Depth", juce::NormalisableRange<float>(0.1f, 1.0f), 0.5f),
+          std::make_unique<juce::AudioParameterFloat>("LFOtype1", "LFO_1_Type", juce::NormalisableRange<float>(0, 8), 0),
+          std::make_unique<juce::AudioParameterFloat>("LFOrate2", "LFO_2_Rate", juce::NormalisableRange<float>(0.1f, 20.0f), 1.0f),
+          std::make_unique<juce::AudioParameterFloat>("LFOdepth2", "LFO_2_Depth", juce::NormalisableRange<float>(0.1f, 1.0f), 0.5f),
+          std::make_unique<juce::AudioParameterFloat>("LFOtype2", "LFO_2_Type", juce::NormalisableRange<float>(0, 8), 0),
           std::make_unique<juce::AudioParameterFloat>("mixA", "MixA", juce::NormalisableRange<float>(0.0f, 1.0f), 0.5f),
           std::make_unique<juce::AudioParameterFloat>("mixB", "MixB", juce::NormalisableRange<float>(0.0f, 1.0f), 0.5f),
           std::make_unique<juce::AudioParameterFloat>("masterVolume", "MasterVolume", juce::NormalisableRange<float>(0.0f, 1.0f), 0.6f),
@@ -182,6 +190,15 @@ void PrismAudioProcessor::updateFilter()
     int cutoffValue = *tree.getRawParameterValue("cutoff");
     int resonanceValue = *tree.getRawParameterValue("resonance");
 
+    if (*tree.getRawParameterValue("envType1") == 1)
+    {
+        filterCutoff = PrismVoice->getFilterEnv1();
+    }
+    else if (*tree.getRawParameterValue("envType2") == 1)
+    {
+        filterCutoff = PrismVoice->getFilterEnv2();
+    }
+
     switch (filterSelection)
     {
     case 0:
@@ -262,6 +279,14 @@ void PrismAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
             float* filterPtr = (float*)tree.getRawParameterValue("filterType");
             float* cutoffPtr = (float*)tree.getRawParameterValue("cutoff");
             float* resonancePtr = (float*)tree.getRawParameterValue("resonance");
+            float* envType1Ptr = (float*)tree.getRawParameterValue("envType1");
+            float* envType2Ptr = (float*)tree.getRawParameterValue("envType2");
+            float* LFOtype1Ptr = (float*)tree.getRawParameterValue("LFOtype1");
+            float* LFOrate1Ptr = (float*)tree.getRawParameterValue("LFOrate1");
+            float* LFOdepth1Ptr = (float*)tree.getRawParameterValue("LFOdepth1");
+            float* LFOtype2Ptr = (float*)tree.getRawParameterValue("LFOtype2");
+            float* LFOrate2Ptr = (float*)tree.getRawParameterValue("LFOrate2");
+            float* LFOdepth2Ptr = (float*)tree.getRawParameterValue("LFOdepth2");
             float* mixAPtr = (float*)tree.getRawParameterValue("mixA");
             float* mixBPtr = (float*)tree.getRawParameterValue("mixB");
             float* masterVolumePtr = (float*)tree.getRawParameterValue("masterVolume");
@@ -275,6 +300,10 @@ void PrismAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
             PrismVoice->getWaveformBType(waveformBPtr);
             PrismVoice->getFilterParam(filterPtr, cutoffPtr, resonancePtr);
             PrismVoice->getParams(masterVolumePtr, mixAPtr, mixBPtr, pbupPtr, pbdownPtr);
+            PrismVoice->getEnv1Type(envType1Ptr);
+            PrismVoice->getEnv2Type(envType2Ptr);
+            PrismVoice->getLFO1Param(LFOtype1Ptr, LFOrate1Ptr, LFOdepth1Ptr);
+            PrismVoice->getLFO2Param(LFOtype2Ptr, LFOrate2Ptr, LFOdepth2Ptr);
         }
     }
 
