@@ -27,24 +27,11 @@ audioProcessor(p)
     masterVolumeSlider.setTextBoxStyle(juce::Slider::NoTextBox, true, 0, 0);
     addAndMakeVisible(&masterVolumeSlider);
 
-    pbupSlider.setSliderStyle(juce::Slider::SliderStyle::LinearHorizontal);
-    pbupSlider.setRange(0, 12, 1);
-    pbupSlider.setValue(12);
-    pbupSlider.setTextBoxStyle(juce::Slider::TextBoxRight, true, 35, 25);
-    addAndMakeVisible(&pbupSlider);
-
-    pbdownSlider.setSliderStyle(juce::Slider::SliderStyle::LinearHorizontal);
-    pbdownSlider.setRange(0, 12, 1);
-    pbdownSlider.setValue(12);
-    pbdownSlider.setTextBoxStyle(juce::Slider::TextBoxRight, true, 35, 25);
-    addAndMakeVisible(&pbdownSlider);
-
 
 
     //sends value of the sliders to the tree state in the processor
     masterVolume = std::make_unique <juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.tree, "masterVolume", masterVolumeSlider);
-    pbupVal = std::make_unique <juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.tree, "pbup", pbupSlider);
-    pbdownVal = std::make_unique <juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.tree, "pbdown", pbdownSlider);
+
 }
 
 GUI::~GUI()
@@ -61,7 +48,6 @@ void GUI::paint (juce::Graphics& g)
 
     //static positioning for now due to time, make dynamic later
     g.drawText("Master", 53, 40, 40, 20, juce::Justification::centredLeft);
-    g.drawText("PB Up/Down", 53, 90, 90, 20, juce::Justification::centredLeft);
 
 
 
@@ -85,6 +71,5 @@ void GUI::resized()
     //draw sliders by reducing area from rectangle above
 
     masterVolumeSlider.setBounds(45, 20, 120, 100);
-    pbdownSlider.setBounds(area.removeFromBottom(sliderWidth).removeFromTop(sliderHeight).withTrimmedTop(10));
-    pbupSlider.setBounds(area.removeFromBottom(sliderHeight).removeFromTop(sliderWidth).withTrimmedTop(10));
+
 }

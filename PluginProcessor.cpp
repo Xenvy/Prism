@@ -1,8 +1,6 @@
 /*
   ==============================================================================
-
     This file contains the basic framework code for a JUCE plugin processor.
-
   ==============================================================================
 */
 
@@ -12,14 +10,14 @@
 //==============================================================================
 PrismAudioProcessor::PrismAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
-     : AudioProcessor (BusesProperties()
-                     #if ! JucePlugin_IsMidiEffect
-                      #if ! JucePlugin_IsSynth
-                       .withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
-                      #endif
-                       .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
-                     #endif
-                       ),
+    : AudioProcessor(BusesProperties()
+#if ! JucePlugin_IsMidiEffect
+#if ! JucePlugin_IsSynth
+        .withInput("Input", juce::AudioChannelSet::stereo(), true)
+#endif
+        .withOutput("Output", juce::AudioChannelSet::stereo(), true)
+#endif
+    ),
     tree(*this, nullptr, "PARAMETERS",
         { std::make_unique<juce::AudioParameterFloat>("attackA", "AttackA", juce::NormalisableRange<float>(0.0f, 5000.0f), 20.0f),
           std::make_unique<juce::AudioParameterFloat>("decayA", "DecayA", juce::NormalisableRange<float>(0.0f, 5000.0f), 500.0f),
@@ -39,22 +37,23 @@ PrismAudioProcessor::PrismAudioProcessor()
           std::make_unique<juce::AudioParameterFloat>("release2", "Release2", juce::NormalisableRange<float>(0.0f, 5000.0f), 800.0f),
           std::make_unique<juce::AudioParameterFloat>("waveformA", "WaveformA", juce::NormalisableRange<float>(0, 3), 0),
           std::make_unique<juce::AudioParameterFloat>("waveformB", "WaveformB", juce::NormalisableRange<float>(0, 3), 0),
-          std::make_unique<juce::AudioParameterFloat>("cutoff", "Cutoff", juce::NormalisableRange<float>(20.0f, 20000.0f), 500.0f),
-          std::make_unique<juce::AudioParameterFloat>("resonance", "Resonance", juce::NormalisableRange<float>(1, 5), 1),
-          std::make_unique<juce::AudioParameterFloat>("filterType", "FilterType", juce::NormalisableRange<float>(0, 3), 0),
+          std::make_unique<juce::AudioParameterFloat>("cutoffA", "CutoffA", juce::NormalisableRange<float>(30.0f, 8000.0f), 500.0f),
+          std::make_unique<juce::AudioParameterFloat>("resonanceA", "ResonanceA", juce::NormalisableRange<float>(1, 5), 1),
+          std::make_unique<juce::AudioParameterFloat>("filterTypeA", "FilterTypeA", juce::NormalisableRange<float>(0, 3), 0),
+          std::make_unique<juce::AudioParameterFloat>("cutoffB", "CutoffB", juce::NormalisableRange<float>(30.0f, 8000.0f), 500.0f),
+          std::make_unique<juce::AudioParameterFloat>("resonanceB", "ResonanceB", juce::NormalisableRange<float>(1, 5), 1),
+          std::make_unique<juce::AudioParameterFloat>("filterTypeB", "FilterTypeB", juce::NormalisableRange<float>(0, 3), 0),
           std::make_unique<juce::AudioParameterFloat>("envType1", "EnvType1", juce::NormalisableRange<float>(0, 5), 0),
           std::make_unique<juce::AudioParameterFloat>("envType2", "EnvType2", juce::NormalisableRange<float>(0, 5), 0),
-          std::make_unique<juce::AudioParameterFloat>("LFOrate1", "LFO_1_Rate", juce::NormalisableRange<float>(0.1f, 20.0f), 1.0f),
+          std::make_unique<juce::AudioParameterFloat>("LFOrate1", "LFO_1_Rate", juce::NormalisableRange<float>(0.1f, 20.0f), 2.0f),
           std::make_unique<juce::AudioParameterFloat>("LFOdepth1", "LFO_1_Depth", juce::NormalisableRange<float>(0.1f, 1.0f), 0.5f),
           std::make_unique<juce::AudioParameterFloat>("LFOtype1", "LFO_1_Type", juce::NormalisableRange<float>(0, 8), 0),
-          std::make_unique<juce::AudioParameterFloat>("LFOrate2", "LFO_2_Rate", juce::NormalisableRange<float>(0.1f, 20.0f), 1.0f),
+          std::make_unique<juce::AudioParameterFloat>("LFOrate2", "LFO_2_Rate", juce::NormalisableRange<float>(0.1f, 20.0f), 2.0f),
           std::make_unique<juce::AudioParameterFloat>("LFOdepth2", "LFO_2_Depth", juce::NormalisableRange<float>(0.1f, 1.0f), 0.5f),
           std::make_unique<juce::AudioParameterFloat>("LFOtype2", "LFO_2_Type", juce::NormalisableRange<float>(0, 8), 0),
           std::make_unique<juce::AudioParameterFloat>("mixA", "MixA", juce::NormalisableRange<float>(0.0f, 1.0f), 0.5f),
           std::make_unique<juce::AudioParameterFloat>("mixB", "MixB", juce::NormalisableRange<float>(0.0f, 1.0f), 0.5f),
-          std::make_unique<juce::AudioParameterFloat>("masterVolume", "MasterVolume", juce::NormalisableRange<float>(0.0f, 1.0f), 0.6f),
-          std::make_unique<juce::AudioParameterFloat>("pbup", "PBup", juce::NormalisableRange<float>(1.0f, 12.0f), 1.0f),
-          std::make_unique<juce::AudioParameterFloat>("pbdown", "PBdown", juce::NormalisableRange<float>(1.0f, 12.0f), 1.0f) })
+          std::make_unique<juce::AudioParameterFloat>("masterVolume", "MasterVolume", juce::NormalisableRange<float>(0.0f, 1.0f), 0.6f) })
 #endif
 {
     Prism.clearVoices();
@@ -80,29 +79,29 @@ const juce::String PrismAudioProcessor::getName() const
 
 bool PrismAudioProcessor::acceptsMidi() const
 {
-   #if JucePlugin_WantsMidiInput
+#if JucePlugin_WantsMidiInput
     return true;
-   #else
+#else
     return false;
-   #endif
+#endif
 }
 
 bool PrismAudioProcessor::producesMidi() const
 {
-   #if JucePlugin_ProducesMidiOutput
+#if JucePlugin_ProducesMidiOutput
     return true;
-   #else
+#else
     return false;
-   #endif
+#endif
 }
 
 bool PrismAudioProcessor::isMidiEffect() const
 {
-   #if JucePlugin_IsMidiEffect
+#if JucePlugin_IsMidiEffect
     return true;
-   #else
+#else
     return false;
-   #endif
+#endif
 }
 
 double PrismAudioProcessor::getTailLengthSeconds() const
@@ -121,36 +120,27 @@ int PrismAudioProcessor::getCurrentProgram()
     return 0;
 }
 
-void PrismAudioProcessor::setCurrentProgram (int index)
+void PrismAudioProcessor::setCurrentProgram(int index)
 {
 }
 
-const juce::String PrismAudioProcessor::getProgramName (int index)
+const juce::String PrismAudioProcessor::getProgramName(int index)
 {
     return {};
 }
 
-void PrismAudioProcessor::changeProgramName (int index, const juce::String& newName)
+void PrismAudioProcessor::changeProgramName(int index, const juce::String& newName)
 {
 }
 
 //==============================================================================
-void PrismAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
+void PrismAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
     juce::ignoreUnused(samplesPerBlock);
     lastSampleRate = sampleRate;
     Prism.setCurrentPlaybackSampleRate(lastSampleRate);
-
-    juce::dsp::ProcessSpec procSpec;
-    procSpec.sampleRate = lastSampleRate;
-    procSpec.maximumBlockSize = samplesPerBlock;
-    procSpec.numChannels = getTotalNumOutputChannels();
-
-    stateVarFilter.reset();
-    stateVarFilter.prepare(procSpec);
-    updateFilter();
 
 }
 
@@ -161,75 +151,34 @@ void PrismAudioProcessor::releaseResources()
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
-bool PrismAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
+bool PrismAudioProcessor::isBusesLayoutSupported(const BusesLayout& layouts) const
 {
-  #if JucePlugin_IsMidiEffect
-    juce::ignoreUnused (layouts);
+#if JucePlugin_IsMidiEffect
+    juce::ignoreUnused(layouts);
     return true;
-  #else
+#else
     // This is the place where you check if the layout is supported.
     // In this template code we only support mono or stereo.
     if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::mono()
-     && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
+        && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
         return false;
 
     // This checks if the input layout matches the output layout
-   #if ! JucePlugin_IsSynth
+#if ! JucePlugin_IsSynth
     if (layouts.getMainOutputChannelSet() != layouts.getMainInputChannelSet())
         return false;
-   #endif
+#endif
 
     return true;
-  #endif
+#endif
 }
 #endif
 
-void PrismAudioProcessor::updateFilter()
-{
-    int filterSelection = *tree.getRawParameterValue("filterType");
-    int cutoffValue = *tree.getRawParameterValue("cutoff");
-    int resonanceValue = *tree.getRawParameterValue("resonance");
 
-    if (*tree.getRawParameterValue("envType1") == 1)
-    {
-        filterCutoff = PrismVoice->getFilterEnv1();
-    }
-    else if (*tree.getRawParameterValue("envType2") == 1)
-    {
-        filterCutoff = PrismVoice->getFilterEnv2();
-    }
-
-    switch (filterSelection)
-    {
-    case 0:
-        bypassFilter = 1;
-        break;
-    case 1:
-        bypassFilter = 0;
-        stateVarFilter.state->type = juce::dsp::StateVariableFilter::Parameters<float>::Type::lowPass;
-        stateVarFilter.state->setCutOffFrequency(lastSampleRate, cutoffValue, resonanceValue);
-        break;
-    case 2:
-        bypassFilter = 0;
-        stateVarFilter.state->type = juce::dsp::StateVariableFilter::Parameters<float>::Type::highPass;
-        stateVarFilter.state->setCutOffFrequency(lastSampleRate, cutoffValue, resonanceValue);
-        break;
-    case 3:
-        bypassFilter = 0;
-        stateVarFilter.state->type = juce::dsp::StateVariableFilter::Parameters<float>::Type::bandPass;
-        stateVarFilter.state->setCutOffFrequency(lastSampleRate, cutoffValue, resonanceValue);
-        break;
-    default:
-        bypassFilter = 1;
-        break;
-    }
-}
-
-
-void PrismAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
+void PrismAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     juce::ScopedNoDenormals noDenormals;
-    auto totalNumInputChannels  = getTotalNumInputChannels();
+    auto totalNumInputChannels = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
     // In case we have more outputs than inputs, this code clears any output
@@ -239,7 +188,7 @@ void PrismAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
     // when they first compile a plugin, but obviously you don't need to keep
     // this code if your algorithm always overwrites all the output channels.
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
-        buffer.clear (i, 0, buffer.getNumSamples());
+        buffer.clear(i, 0, buffer.getNumSamples());
 
     // This is the place where you'd normally do the guts of your plugin's
     // audio processing...
@@ -276,9 +225,12 @@ void PrismAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
             float* release2Ptr = (float*)tree.getRawParameterValue("release2");
             float* waveformAPtr = (float*)tree.getRawParameterValue("waveformA");
             float* waveformBPtr = (float*)tree.getRawParameterValue("waveformB");
-            float* filterPtr = (float*)tree.getRawParameterValue("filterType");
-            float* cutoffPtr = (float*)tree.getRawParameterValue("cutoff");
-            float* resonancePtr = (float*)tree.getRawParameterValue("resonance");
+            float* filterAPtr = (float*)tree.getRawParameterValue("filterTypeA");
+            float* cutoffAPtr = (float*)tree.getRawParameterValue("cutoffA");
+            float* resonanceAPtr = (float*)tree.getRawParameterValue("resonanceA");
+            float* filterBPtr = (float*)tree.getRawParameterValue("filterTypeB");
+            float* cutoffBPtr = (float*)tree.getRawParameterValue("cutoffB");
+            float* resonanceBPtr = (float*)tree.getRawParameterValue("resonanceB");
             float* envType1Ptr = (float*)tree.getRawParameterValue("envType1");
             float* envType2Ptr = (float*)tree.getRawParameterValue("envType2");
             float* LFOtype1Ptr = (float*)tree.getRawParameterValue("LFOtype1");
@@ -290,16 +242,14 @@ void PrismAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
             float* mixAPtr = (float*)tree.getRawParameterValue("mixA");
             float* mixBPtr = (float*)tree.getRawParameterValue("mixB");
             float* masterVolumePtr = (float*)tree.getRawParameterValue("masterVolume");
-            float* pbupPtr = (float*)tree.getRawParameterValue("pbup");
-            float* pbdownPtr = (float*)tree.getRawParameterValue("pbdown");
             PrismVoice->getADSR_AParam(attackAPtr, decayAPtr, sustainAPtr, releaseAPtr);
             PrismVoice->getADSR_BParam(attackBPtr, decayBPtr, sustainBPtr, releaseBPtr);
             PrismVoice->getEnv1Param(attack1Ptr, decay1Ptr, sustain1Ptr, release1Ptr);
             PrismVoice->getEnv2Param(attack2Ptr, decay2Ptr, sustain2Ptr, release2Ptr);
             PrismVoice->getWaveformAType(waveformAPtr);
             PrismVoice->getWaveformBType(waveformBPtr);
-            PrismVoice->getFilterParam(filterPtr, cutoffPtr, resonancePtr);
-            PrismVoice->getParams(masterVolumePtr, mixAPtr, mixBPtr, pbupPtr, pbdownPtr);
+            PrismVoice->getFilterParam(filterAPtr, cutoffAPtr, resonanceAPtr, filterBPtr, cutoffBPtr, resonanceBPtr);
+            PrismVoice->getParams(masterVolumePtr, mixAPtr, mixBPtr);
             PrismVoice->getEnv1Type(envType1Ptr);
             PrismVoice->getEnv2Type(envType2Ptr);
             PrismVoice->getLFO1Param(LFOtype1Ptr, LFOrate1Ptr, LFOdepth1Ptr);
@@ -309,12 +259,6 @@ void PrismAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
 
     buffer.clear();
     Prism.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
-    updateFilter();
-    if (bypassFilter == 0)
-    {
-        juce::dsp::AudioBlock<float> aBlock(buffer);
-        stateVarFilter.process(juce::dsp::ProcessContextReplacing<float>(aBlock));
-    }
 }
 
 //==============================================================================
@@ -325,18 +269,18 @@ bool PrismAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* PrismAudioProcessor::createEditor()
 {
-    return new PrismAudioProcessorEditor (*this);
+    return new PrismAudioProcessorEditor(*this);
 }
 
 //==============================================================================
-void PrismAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
+void PrismAudioProcessor::getStateInformation(juce::MemoryBlock& destData)
 {
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
 }
 
-void PrismAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
+void PrismAudioProcessor::setStateInformation(const void* data, int sizeInBytes)
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.

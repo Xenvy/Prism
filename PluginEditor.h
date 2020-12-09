@@ -18,7 +18,8 @@
 #include "Custom_Envelope_2.h"
 #include "LFO_1.h"
 #include "LFO_2.h"
-#include "Filter.h"
+#include "Filter_A.h"
+#include "Filter_B.h"
 #include "GUI.h"
 
 //==============================================================================
@@ -47,7 +48,8 @@ private:
     Custom_Envelope_2 envelope2;
     LFO_1 lfo1;
     LFO_2 lfo2;
-    Filter filterA;
+    Filter_A filterA;
+    Filter_B filterB;
     GUI gui;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PrismAudioProcessorEditor)

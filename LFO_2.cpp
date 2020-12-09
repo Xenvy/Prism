@@ -35,7 +35,7 @@ audioProcessor(p)
 
     rateSlider2.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
     rateSlider2.setRange(20.0, 20000.0);
-    rateSlider2.setValue(500.0);
+    rateSlider2.setValue(2000.0);
     rateSlider2.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
     addAndMakeVisible(&rateSlider2);
     rateValue2 = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.tree, "LFOrate2", rateSlider2);
@@ -68,6 +68,9 @@ void LFO_2::paint (juce::Graphics& g)
     g.setColour(juce::Colours::white);
     g.drawText("LFO 2", titleArea, juce::Justification::centredTop);
 
+    g.drawText("Rate", 34, 145, 60, 20, juce::Justification::centredTop);
+    g.drawText("Depth", 105, 145, 60, 20, juce::Justification::centredTop);
+
     juce::Rectangle <float> area(25, 25, 150, 150);
 
     g.setColour(juce::Colours::lightblue);
@@ -81,7 +84,7 @@ void LFO_2::resized()
 
     juce::Rectangle<int> area = getLocalBounds().reduced(40);
     LFOType2.setBounds(area.removeFromTop(20));
-    rateSlider2.setBounds(30, 100, 70, 70);
-    depthSlider2.setBounds(100, 100, 70, 70);
+    rateSlider2.setBounds(30, 80, 70, 70);
+    depthSlider2.setBounds(100, 80, 70, 70);
 
 }

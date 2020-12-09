@@ -23,7 +23,7 @@ Custom_Envelope_1::Custom_Envelope_1(PrismAudioProcessor& p):
     attackSlider1.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
     attackSlider1.setRange(0.0f, 5000.0f);
     attackSlider1.setTextBoxStyle(juce::Slider::NoTextBox, true, 0, 0);
-    attackSlider1.setValue(0.1f);
+    attackSlider1.setValue(20.0f);
 
     decaySlider1.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
     decaySlider1.setRange(0.0f, 5000.0f);
@@ -41,11 +41,12 @@ Custom_Envelope_1::Custom_Envelope_1(PrismAudioProcessor& p):
     releaseSlider1.setValue(800.0f);
 
     envTypeSelection1.addItem("None", 1);
-    envTypeSelection1.addItem("Filter cutoff", 2);
-    envTypeSelection1.addItem("Pitch A", 3);
-    envTypeSelection1.addItem("Pitch B", 4);
-    envTypeSelection1.addItem("Pan A", 5);
-    envTypeSelection1.addItem("Pan B", 6);
+    envTypeSelection1.addItem("Filter cutoff A", 2);
+    envTypeSelection1.addItem("Filter cutoff B", 3);
+    envTypeSelection1.addItem("Pitch A", 4);
+    envTypeSelection1.addItem("Pitch B", 5);
+    envTypeSelection1.addItem("Pan A", 6);
+    envTypeSelection1.addItem("Pan B", 7);
     envTypeSelection1.setJustificationType(juce::Justification::centred);
     addAndMakeVisible(&envTypeSelection1);
     envType1 = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.tree, "envType1", envTypeSelection1);
@@ -82,10 +83,10 @@ void Custom_Envelope_1::paint (juce::Graphics& g)
     g.drawText("Envelope 1", titleArea, juce::Justification::centredTop);
 
     //static positioning for now due to time, make dynamic later
-    g.drawText("A", 53, 150, 20, 20, juce::Justification::centredTop);
-    g.drawText("D", 77, 150, 20, 20, juce::Justification::centredTop);
-    g.drawText("S", 103, 150, 20, 20, juce::Justification::centredTop);
-    g.drawText("R", 128, 150, 20, 20, juce::Justification::centredTop);
+    g.drawText("A", 43, 150, 20, 20, juce::Justification::centredTop);
+    g.drawText("D", 68, 150, 20, 20, juce::Justification::centredTop);
+    g.drawText("S", 93, 150, 20, 20, juce::Justification::centredTop);
+    g.drawText("R", 118, 150, 20, 20, juce::Justification::centredTop);
 
     juce::Rectangle <float> area(25, 25, 150, 150);
 
@@ -101,12 +102,12 @@ void Custom_Envelope_1::resized()
     juce::Rectangle<int> area = getLocalBounds().reduced(40);
 
     int sliderWidth = 25;
-    int sliderHeight = 175;
+    int sliderHeight = 90;
 
     envTypeSelection1.setBounds(area.removeFromTop(20));
-    attackSlider1.setBounds(area.removeFromLeft(sliderWidth).removeFromTop(sliderHeight).withTrimmedTop(10));
-    decaySlider1.setBounds(area.removeFromLeft(sliderWidth).removeFromTop(sliderHeight).withTrimmedTop(10));
-    sustainSlider1.setBounds(area.removeFromLeft(sliderWidth).removeFromTop(sliderHeight).withTrimmedTop(10));
-    releaseSlider1.setBounds(area.removeFromLeft(sliderWidth).removeFromTop(sliderHeight).withTrimmedTop(10));
+    attackSlider1.setBounds(area.removeFromLeft(sliderWidth).removeFromTop(sliderHeight).withTrimmedTop(5));
+    decaySlider1.setBounds(area.removeFromLeft(sliderWidth).removeFromTop(sliderHeight).withTrimmedTop(5));
+    sustainSlider1.setBounds(area.removeFromLeft(sliderWidth).removeFromTop(sliderHeight).withTrimmedTop(5));
+    releaseSlider1.setBounds(area.removeFromLeft(sliderWidth).removeFromTop(sliderHeight).withTrimmedTop(5));
 
 }
